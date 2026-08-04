@@ -282,7 +282,11 @@ def handle_plot(args):
     except Exception as e:
         sys.exit(f"\n[!] ERROR during plotting/visualization: {e}")
 
-def main():
+def main(args_list=None):
+    """
+    Main entry point for the pipeline.
+    Parses command line arguments or accepts a manual list of arguments.
+    """
     parser = argparse.ArgumentParser(
         description="Automated Generic Pipeline for DFT Simulations and Post-Processing (Quantum ESPRESSO).",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
@@ -299,7 +303,8 @@ def main():
     parser_setup.add_argument('--npool', type=int, default=4, help="Number of MPI processes.")
 
     parser_run = subparsers.add_parser('run', help="Executes the main computational pipeline (SCF, NSCF, BANDS).")
-    parser_run.add_argument('--mode', type=str, choices=['SR', 'FR'], required=True, help="Physical mode: SR (Scalar Relativistic) or FR (Fully Relativistic).")
+    parser_run.add_argument('--mode', type=str, choices=['SR', 'FR'], required=True,
+                            help="Physical mode: SR (Scalar Relativistic) or FR (Fully Relativistic).")
     parser_run.add_argument('--npool', type=int, default=4, help="Number of k-point pools for parallelization.")
     parser_run.add_argument('--step', type=str, choices=['all', 'scf', 'dos', 'fs', 'bands'], default='all',
                             help="Execute the entire pipeline ('all') or a specific logical block.")
@@ -308,10 +313,12 @@ def main():
     parser_plot.add_argument('--mode', type=str, choices=['SR', 'FR', 'compare', 'fs'], required=True,
                              help="Plotting mode: SR, FR, compare (overlay), or fs (FermiSurfer).")
     parser_plot.add_argument('--dos_max', type=float, default=None, help="Custom upper limit for the DOS X-axis.")
-    parser_plot.add_argument('--emin', type=float, default=-2.0, help="Minimum energy (eV) relative to the Fermi Level.")
+    parser_plot.add_argument('--emin', type=float, default=-2.0,
+                             help="Minimum energy (eV) relative to the Fermi Level.")
     parser_plot.add_argument('--emax', type=float, default=2.0, help="Maximum energy (eV) relative to the Fermi Level.")
 
-    args = parser.parse_args()
+    # Parse either the provided list (from external scripts) or sys.argv (from terminal)
+    args = parser.parse_args(args_list)
 
     if args.command == 'setup':
         handle_setup(args)
@@ -320,6 +327,16 @@ def main():
     elif args.command == 'plot':
         handle_plot(args)
 
+def run_pipeline(prefix):
+    """
+    Programmatic entry point for external wrapper scripts.
+    Executes sequentially: setup -> run (SR) -> plot (SR).
+    """
+    print(f"\n{'=' * 50}\nStarting Automated Pipeline for: {prefix}\n{'=' * 50}")
+
+    main(["--prefix", prefix, "setup"])
+    main(["--prefix", prefix, "run", "--mode", "SR"])
+    main(["--prefix", prefix, "plot", "--mode", "SR"])
 
 if __name__ == "__main__":
     main()

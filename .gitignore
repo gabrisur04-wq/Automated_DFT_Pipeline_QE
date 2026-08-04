@@ -1,21 +1,28 @@
-# Temporary working directories and calculation outputs
-tmp*
-outputs/
-inputs/
-pseudo/
-
-# Runtime state files and generated plots
-*_state.json
-*.png
-*.pdf
-
-# Virtual environments
-venv/
-env/
-.env/
-
-# System-specific files, IDE configurations, and bytecode
-.idea/
+# Python environment and cache
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+.venv/
+venv/
+
+# IDE and OS files
+.idea/
 .DS_Store
+
+# Pipeline runtime directories
+/inputs/
+/outputs/
+/tmp/
+/tmp_*/
+
+# Pipeline state files generated during execution
+*_state.json
+
+# Quantum ESPRESSO specific binary and large output files
+*.save/
+*.wfc*
+*.mix*
+*.xml
+*.igk*
+*.rho
+CRASH
