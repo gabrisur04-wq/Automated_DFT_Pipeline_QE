@@ -1,0 +1,60 @@
+{
+    "global": {
+        "control_params": {
+            "pseudo_dir": "./pseudo/",
+            "outdir": "./tmp/",
+            "tstress": true,
+            "tprnfor": true
+        },
+        "system_params": {
+            "ecutwfc": 120,
+            "ecutrho": 1200,
+            "occupations": "smearing",
+            "smearing": "marzari-vanderbilt",
+            "degauss": 0.01,
+            "noncolin": true,
+            "lspinorb": true
+        },
+        "electrons_params": {
+            "mixing_beta": 0.3,
+            "conv_thr": 1e-8,
+            "diagonalization": "cg"
+        }
+    },
+    "step_overrides": {
+        "vcrelax": {
+            "control": {
+                "calculation": "vc-relax",
+                "etot_conv_thr": 1.0e-4,
+                "forc_conv_thr": 1.0e-3
+            },
+            "ions": {
+                "ion_dynamics": "bfgs"
+            },
+            "cell": {
+                "cell_dynamics": "bfgs",
+                "cell_dofree": "all"
+            }
+        },
+        "bands": {
+            "control": {
+                "calculation": "bands"
+            },
+            "system": {
+                "occupations": "smearing"
+            },
+            "electrons": {
+                "startingpot": "file",
+                "diagonalization": "david"
+            }
+        },
+        "nscf": {
+            "control": {
+                "calculation": "nscf"
+            },
+            "system": {
+                "occupations": "tetrahedra"
+            }
+        }
+    }
+}

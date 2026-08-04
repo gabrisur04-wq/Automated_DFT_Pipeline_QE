@@ -1,0 +1,21 @@
+# Temporary working directories and calculation outputs
+tmp*
+outputs/
+inputs/
+pseudo/
+
+# Runtime state files and generated plots
+*_state.json
+*.png
+*.pdf
+
+# Virtual environments
+venv/
+env/
+.env/
+
+# System-specific files, IDE configurations, and bytecode
+.idea/
+__pycache__/
+*.pyc
+.DS_Store
