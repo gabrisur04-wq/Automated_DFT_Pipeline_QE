@@ -11,7 +11,9 @@ This directory contains a complete configuration to calculate the electronic ban
 
 You can launch the example directly using the provided script. From your terminal, navigate to this directory and run:
 
+```bash
 python run_example.py
+```
 
 ## Expected Output
 
@@ -21,3 +23,5 @@ The script will dynamically create the following directories in the project root
 * `outputs/`: Contains the final data, including the parsed band structure files and plots.
 
 Once the pipeline finishes, check the `outputs/` folder for the graphical representation of the NiTe2 bands.
+
+> **Note:** The complete execution of the pipeline may take several minutes depending on your hardware capabilities and the number of parallel processes utilized.

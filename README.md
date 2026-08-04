@@ -25,8 +25,8 @@ To run this pipeline, the following external software must be installed on your 
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/your-username/your-repo-name.git](https://github.com/your-username/your-repo-name.git)
-   cd your-repo-name
+   git clone [https://github.com/gabrisur04-wq/Automated_DFT_Pipeline_QE.git](https://github.com/gabrisur04-wq/Automated_DFT_Pipeline_QE.git)
+   cd Automated_DFT_Pipeline_QE
    ```
 
 2. **Install Python dependencies:**
@@ -41,6 +41,12 @@ To run this pipeline, the following external software must be installed on your 
    mkdir pseudo
    # Copy your .upf files into the ./pseudo/ directory
    ```
+
+## Examples
+
+A ready-to-run demonstration for the Dirac semimetal NiTe2 is included in the repository. This allows you to test the complete pipeline out-of-the-box without initial manual configuration.
+
+Please navigate to the `examples/NiTe2_example/` directory and read the local `README.md` for specific execution instructions.
    
 ## Quick Start / Usage
 
