@@ -9,16 +9,19 @@ venv/
 .idea/
 .DS_Store
 
-# Pipeline runtime directories
-/inputs/
-/outputs/
-/tmp/
-/tmp_*/
+# Pipeline runtime directories (ignored at any depth)
+inputs/
+tmp/
+tmp_*/
 
-# Pipeline state files generated during execution
-*_state.json
+# Ignore generic outputs folders everywhere
+outputs/
 
-# Quantum ESPRESSO specific binary and large output files
+# EXCEPT the demonstration outputs inside the NiTe2 example
+!examples/NiTe2_example/outputs/
+!examples/NiTe2_example/outputs/**
+
+# Quantum ESPRESSO specific temporary/large files
 *.save/
 *.wfc*
 *.mix*
@@ -26,4 +29,3 @@ venv/
 *.igk*
 *.rho
 CRASH
-NiTe2.json

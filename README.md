@@ -4,6 +4,9 @@ This repository provides an automated, modular pipeline for Density Functional T
 
 By decoupling the numerical infrastructure from the material's physical parameters via specific JSON configuration files, the pipeline ensures highly reproducible simulations in both Scalar Relativistic (SR) and Fully Relativistic (FR) regimes without requiring manual adjustments to the input scripts.
 
+## Showcase: NiTe2 Electronic Structure
+Check out the [NiTe2 Complete Example](examples/NiTe2_example/) to see the input configurations and the pre-computed high-resolution plots.
+
 ## Configuration Architecture
 
 To ensure high reproducibility and ease of maintenance, the pipeline strictly separates the computational infrastructure from the physical properties of the system being studied. This is managed via two distinct JSON configuration files:
@@ -50,13 +53,15 @@ Please navigate to the `examples/NiTe2_example/` directory and read the local `R
    
 ## Quick Start / Usage
 
-The pipeline is controlled via the `main.py` script, which uses a modular command-line interface. The workflow is divided into three sequential phases.
+The pipeline is controlled via the `main.py` script, which uses a modular command-line interface. The workflow is divided into three sequential phases. 
+
+**Parallelization Note:** The script uses `--num_cores` to specify the total MPI processes and `--npool` to distribute k-points. For standard multi-core desktop machines, it is highly recommended to use `--npool 1` to maximize memory efficiency and prevent MPI deadlocks during heavy NSCF calculations.
 
 ### 1. Setup and Structural Relaxation
 This phase performs convergence tests (cutoff energy and k-points) and a variable-cell structural relaxation (`vc-relax`). It saves the optimized geometry to a state file (`<prefix>_state.json`).
 
 ```bash
-python main.py --prefix NiTe2 setup --npool 4
+python main.py --prefix NiTe2 setup --num_cores 4 --npool 1
 ```
 
 ### 2. Execution (Run)
@@ -64,15 +69,15 @@ Once the setup is complete, you can run the main computational pipeline. You mus
 
 ```bash
 # Run the full pipeline in Scalar Relativistic mode
-python main.py --prefix NiTe2 run --mode SR --npool 4
+python main.py --prefix NiTe2 run --mode SR --num_cores 4 --npool 1
 
 # Run the full pipeline in Fully Relativistic mode
-python main.py --prefix NiTe2 run --mode FR --npool 4
+python main.py --prefix NiTe2 run --mode FR --num_cores 4 --npool 1
 ```
 
 *Advanced usage:* You can execute specific steps of the pipeline (`scf`, `dos`, `fs`, `bands`) independently using the `--step` flag. Note that temporary directories (`tmp*`) should be cleared before starting a new full calculation.
 ```bash
-python main.py --prefix NiTe2 run --mode SR --step scf --npool 4
+python main.py --prefix NiTe2 run --mode SR --step scf --num_cores 4 --npool 1
 ```
 
 ### 3. Post-Processing and Plotting

@@ -10,7 +10,7 @@ class SimulationRunner:
     of the calculations upon completion.
     """
 
-    def __init__(self, output_folder="./outputs", num_cores=1, qe_path=""):
+    def __init__(self, output_folder="./outputs", num_cores=4, qe_path=""):
         """
         Initializes the SimulationRunner.
 
@@ -127,6 +127,7 @@ class SimulationRunner:
         out_file = self._execute_command("dos.x", input_file_path, serial=True)
         if out_file and self._check_job_done(out_file):
             dos_data_file = os.path.join(self.output_folder, f"{self._get_prefix(input_file_path)}.dos")
+            print(f"DOS extraction successfully completed: {out_file}")
             return {"out_file": out_file, "data_file": dos_data_file}
 
         return None
@@ -140,6 +141,7 @@ class SimulationRunner:
 
             gnu_data_file = os.path.join(self.output_folder, f"{prefix}_bands.dat.gnu")
             rap_data_file = os.path.join(self.output_folder, f"{prefix}_bands.dat.rap")
+            print(f"Bands post-processing successfully completed: {out_file}")
 
             return {
                 "out_file": out_file,
@@ -154,6 +156,7 @@ class SimulationRunner:
         out_file = self._execute_command("fs.x", input_file_path, serial=True)
         if out_file and self._check_job_done(out_file):
             bxsf_data_file = os.path.join(self.output_folder, f"{self._get_prefix(input_file_path)}.bxsf")
+            print(f"Fermi Surface extraction successfully completed: {out_file}")
             return {"out_file": out_file, "data_file": bxsf_data_file}
 
         return None

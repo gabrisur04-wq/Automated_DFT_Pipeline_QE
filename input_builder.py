@@ -111,6 +111,9 @@ class InputBuilder:
         ctrl, sys, elec = self._apply_overrides('vcrelax')
         ctrl['prefix'] = self.prefix
 
+        sys.pop('diagonalization', None)
+        elec['diagonalization'] = 'david'
+
         control_str = self._format_namelist("CONTROL", ctrl)
         system_str = self._format_namelist("SYSTEM", sys)
         electrons_str = self._format_namelist("ELECTRONS", elec)
@@ -138,6 +141,9 @@ class InputBuilder:
     def build_scf_input(self, k_points, suffix="scf"):
         self.control_params['calculation'] = 'scf'
         self.control_params['prefix'] = self.prefix
+
+        self.system_params.pop('diagonalization', None)
+        self.electrons_params['diagonalization'] = 'david'
 
         control_str = self._format_namelist("CONTROL", self.control_params)
         system_str = self._format_namelist("SYSTEM", self.system_params)
@@ -208,6 +214,10 @@ class InputBuilder:
         sys.pop('smearing', None)
         sys.pop('degauss', None)
 
+        elec['diagonalization'] = 'cg'
+        elec['diago_cg_maxiter'] = 40
+        sys.pop('diagonalization', None)
+
         # Disable symmetry reduction to ensure a uniform k-grid for specific post-processing (e.g., fs.x)
         if nosym:
             sys['nosym'] = '.true.'
@@ -275,6 +285,10 @@ class InputBuilder:
 
         ctrl['prefix'] = self.prefix
         ctrl['outdir'] = outdir if outdir else self.control_params.get('outdir', './tmp/')
+
+        sys.pop('diagonalization', None)
+        elec['diagonalization'] = 'cg'
+        elec['diago_cg_maxiter'] = 40
 
         # --- K-POINTS CONSISTENCY CHECK ---
         # Ensures the number of k-points declared in the header matches the provided coordinate lines.

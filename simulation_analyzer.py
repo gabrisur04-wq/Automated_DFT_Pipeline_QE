@@ -315,11 +315,19 @@ class SimulationAnalyzer:
 
         ax2.axhline(0, color='red', linestyle='--', alpha=0.6)
 
-        # Apply custom limit or calculate automatically
+        # Apply custom limit or calculate automatically based on the energy window
         if dos_max is not None:
             ax2.set_xlim(0, dos_max)
         else:
-            ax2.set_xlim(0, max(self.dos_values) + 1)
+            mask = (self.dos_energy >= energy_window[0]) & (self.dos_energy <= energy_window[1])
+            dos_in_window = self.dos_values[mask]
+
+            if len(dos_in_window) > 0:
+                calc_max = float(np.max(dos_in_window)) * 1.05
+            else:
+                calc_max = float(np.max(self.dos_values)) * 1.05
+
+            ax2.set_xlim(0, calc_max)
 
         ax2.set_xlabel('DOS (states / eV)')
         ax2.tick_params(direction='in', top=True, right=True)
@@ -393,11 +401,26 @@ class SimulationAnalyzer:
 
         ax2.axhline(0, color='red', linestyle='--', alpha=0.5, linewidth=1.0)
 
-        # Apply custom limit or calculate automatically
+        # Apply custom limit or calculate automatically based on the energy window for both datasets
         if dos_max is not None:
             ax2.set_xlim(0, dos_max)
         else:
-            ax2.set_xlim(0, max(self.dos_values) + 1)
+            # Foreground (FR) max
+            mask_self = (self.dos_energy >= energy_window[0]) & (self.dos_energy <= energy_window[1])
+            dos_in_window_self = self.dos_values[mask_self]
+            max_self = float(np.max(dos_in_window_self)) if len(dos_in_window_self) > 0 else float(
+                np.max(self.dos_values))
+
+            # Background (SR) max
+            mask_other = (other_analyzer.dos_energy >= energy_window[0]) & (
+                        other_analyzer.dos_energy <= energy_window[1])
+            dos_in_window_other = other_analyzer.dos_values[mask_other]
+            max_other = float(np.max(dos_in_window_other)) if len(dos_in_window_other) > 0 else float(
+                np.max(other_analyzer.dos_values))
+
+            # Set limit to the absolute maximum + 5% margin
+            calc_max = max(max_self, max_other) * 1.05
+            ax2.set_xlim(0, calc_max)
 
         ax2.set_xlabel('DOS (states / eV)')
         ax2.tick_params(direction='in', top=True, right=True)

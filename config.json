@@ -4,21 +4,20 @@
             "pseudo_dir": "./pseudo/",
             "outdir": "./tmp/",
             "tstress": true,
-            "tprnfor": true
+            "tprnfor": true,
+            "verbosity": "high"
         },
         "system_params": {
             "ecutwfc": 120,
             "ecutrho": 1200,
             "occupations": "smearing",
             "smearing": "marzari-vanderbilt",
-            "degauss": 0.01,
-            "noncolin": true,
-            "lspinorb": true
+            "degauss": 0.01
         },
         "electrons_params": {
-            "mixing_beta": 0.3,
+            "mixing_beta": 0.7,
             "conv_thr": 1e-8,
-            "diagonalization": "cg"
+            "diagonalization": "david"
         }
     },
     "step_overrides": {

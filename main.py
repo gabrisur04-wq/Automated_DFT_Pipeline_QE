@@ -32,8 +32,10 @@ def handle_setup(args):
     os.makedirs("./inputs", exist_ok=True)
     os.makedirs("./outputs", exist_ok=True)
 
-    # Load infrastructure and material configurations
-    with open('config.json', 'r', encoding='utf-8') as f:
+    # Load infrastructure configuration dynamically from the project root
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(base_dir, 'config.json')
+    with open(config_path, 'r', encoding='utf-8') as f:
         config = json.load(f)
 
     try:
@@ -42,18 +44,34 @@ def handle_setup(args):
     except FileNotFoundError:
         sys.exit(f"Critical Error: Material file '{args.prefix}.json' not found. Setup aborted.")
 
+    # Ensure setup runs strictly in Scalar-Relativistic (SR) mode
+    global_params = config['global']
+    global_params['system_params'].pop('noncolin', None)
+    global_params['system_params'].pop('lspinorb', None)
+
     # Initialize core operational classes
     builder = InputBuilder(
         prefix=args.prefix,
         output_folder="./inputs",
-        global_params=config['global'],
+        global_params=global_params,
         step_overrides=config.get('step_overrides', {}),
         atomic_species=mat_config['structure']['atomic_species_SR'],
         atomic_positions=mat_config['structure']['atomic_positions']
     )
 
-    runner = SimulationRunner(qe_path=args.qe_path, output_folder="./outputs", num_cores=args.npool)
+    runner = SimulationRunner(qe_path=args.qe_path, output_folder="./outputs", num_cores=args.num_cores)
     analyzer = SimulationAnalyzer(prefix=args.prefix, dos_path="", bands_gnu_path="", bands_out_path="")
+
+    # Inject structural parameters required for &SYSTEM before creating input files
+    struct_data = mat_config['structure']
+    builder.system_params['ibrav'] = struct_data['ibrav']
+    builder.system_params['celldm(1)'] = struct_data['celldm(1)']
+
+    if 'celldm(3)' in struct_data:
+        builder.system_params['celldm(3)'] = struct_data['celldm(3)']
+
+    builder.system_params['nat'] = struct_data['nat']
+    builder.system_params['ntyp'] = struct_data['ntyp']
 
     # ---------------------------------------------------------
     # CONVERGENCE TESTS
@@ -90,7 +108,8 @@ def handle_setup(args):
     # STRUCTURAL RELAXATION (vc-relax)
     # ---------------------------------------------------------
     print("\n[3/3] Running variable-cell structural relaxation...")
-    vcrelax_in = builder.build_vcrelax_input(k_points=mat_config['convergence']['kpoints_scf'])
+    relax_k = mat_config['convergence'].get('kpoints_relax', mat_config['convergence']['kpoints_scf'])
+    vcrelax_in = builder.build_vcrelax_input(k_points=relax_k)
     vcrelax_out = runner.run_pw(vcrelax_in)
 
     if vcrelax_out is None:
@@ -104,7 +123,7 @@ def handle_setup(args):
     except Exception as e:
         sys.exit(f"Error parsing relaxed structure: {e}")
 
-    state_file = f"{args.prefix}_state.json"
+    state_file = os.path.join("./outputs", f"{args.prefix}_state.json")
     state_data = {
         "cell_parameters": relaxed_data['cell_parameters'],
         "atomic_positions": relaxed_data['atomic_positions'],
@@ -128,14 +147,17 @@ def handle_run(args):
     os.makedirs("./outputs", exist_ok=True)
 
     # Load persistent state and configurations
-    state_file = f"{args.prefix}_state.json"
+    state_file = os.path.join("./outputs", f"{args.prefix}_state.json")
     if not os.path.exists(state_file):
         sys.exit(f"Error: State file '{state_file}' not found. Run the 'setup' command first.")
 
     with open(state_file, 'r', encoding='utf-8') as f:
         state_data = json.load(f)
 
-    with open('config.json', 'r', encoding='utf-8') as f:
+    # Load infrastructure configuration dynamically from the project root
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(base_dir, 'config.json')
+    with open(config_path, 'r', encoding='utf-8') as f:
         config = json.load(f)
 
     with open(f'{args.prefix}.json', 'r', encoding='utf-8') as f:
@@ -172,13 +194,20 @@ def handle_run(args):
         atomic_positions=dummy_positions
     )
 
-    runner = SimulationRunner(qe_path=args.qe_path, output_folder="./outputs", num_cores=args.npool)
+    runner = SimulationRunner(qe_path=args.qe_path, output_folder="./outputs", num_cores=args.num_cores)
 
     # Inject the optimized structure
     builder.update_structure(
         new_cell_parameters=state_data['cell_parameters'],
         new_atomic_positions=state_data['atomic_positions']
     )
+
+    # Re-inject mandatory parameters AFTER update_structure to prevent internal deletion
+    struct_data = mat_config['structure']
+    builder.system_params['ibrav'] = 0
+    builder.system_params['celldm(1)'] = struct_data['celldm(1)']
+    builder.system_params['nat'] = struct_data['nat']
+    builder.system_params['ntyp'] = struct_data['ntyp']
 
     builder.prefix = f"{args.prefix}_{args.mode}"
     current_prefix = builder.prefix
@@ -189,7 +218,7 @@ def handle_run(args):
     if args.step in ['all', 'scf']:
         print(f"\n[1/7] Executing base SCF calculation...")
         scf_in = builder.build_scf_input(k_points=mat_config['convergence']['kpoints_scf'], suffix=f"scf")
-        if runner.run_pw(scf_in) is None:
+        if runner.run_pw(scf_in, npool=args.npool) is None:
             sys.exit("Critical Error: SCF calculation failed. Pipeline aborted.")
 
     if args.step in ['all', 'dos']:
@@ -201,14 +230,20 @@ def handle_run(args):
             sys.exit("Error: NSCF calculation for DOS failed. Pipeline aborted.")
 
         print(f"\n[3/7] Extracting DOS...")
-        dos_in = builder.build_dos_input(deltae=0.01, outdir="./tmp_dos")
+        deltae_val = mat_config['convergence'].get('dos_deltae', 0.01)
+        dos_in = builder.build_dos_input(deltae=deltae_val, outdir="./tmp_dos")
         if runner.run_dos(dos_in) is None:
             sys.exit("Error: DOS extraction (dos.x) failed. Pipeline aborted.")
 
     if args.step in ['all', 'fs']:
         print(f"\n[4/7] Executing NSCF calculation for Fermi Surface (npool={args.npool})...")
         runner.prepare_branch_dir(base_tmp="./tmp", target_tmp="./tmp_fs", prefix=current_prefix)
-        nscf_fs_in = builder.build_nscf_input(k_points=mat_config['convergence']['kpoints_scf'], nosym=True,
+
+        fs_k = mat_config['convergence'].get('kpoints_fs',
+                                             mat_config['convergence'].get('kpoints_dos',
+                                                                           mat_config['convergence']['kpoints_scf']))
+
+        nscf_fs_in = builder.build_nscf_input(k_points=fs_k, nosym=True,
                                               outdir="./tmp_fs", suffix=f"nscf_fs")
         if runner.run_pw(nscf_fs_in, npool=args.npool) is None:
             sys.exit("Error: NSCF calculation for Fermi Surface failed. Pipeline aborted.")
@@ -229,8 +264,6 @@ def handle_run(args):
         bands_pp_in = builder.build_bands_pp_input(outdir="./tmp_bands")
         if runner.run_bands_pp(bands_pp_in) is None:
             sys.exit("Error: Bands post-processing (bands.x) failed. Pipeline aborted.")
-
-    print(f"\nExecution ({args.step}) successfully completed for {args.mode} mode.")
 
 def get_analyzer(prefix_base, mode, k_labels, output_folder="./outputs"):
     """Helper function to initialize the SimulationAnalyzer with correct paths."""
@@ -261,7 +294,7 @@ def handle_plot(args):
             analyzer_sr = get_analyzer(args.prefix, 'SR', k_labels)
             analyzer_fr = get_analyzer(args.prefix, 'FR', k_labels)
 
-            out_plot_name = f"{args.prefix}_bands_dos_compare.png"
+            out_plot_name = os.path.join("./outputs", f"{args.prefix}_bands_dos_compare.png")
             analyzer_fr.plot_bands_dos_compare(
                 analyzer_sr, out_plot=out_plot_name, energy_window=energy_win, dos_max=args.dos_max
             )
@@ -275,7 +308,7 @@ def handle_plot(args):
         else:
             analyzer = get_analyzer(args.prefix, args.mode, k_labels)
             fig = analyzer.plot_bands_dos(energy_window=energy_win, dos_max=args.dos_max)
-            out_plot_name = f"{args.prefix}_{args.mode}_bands_dos.png"
+            out_plot_name = os.path.join("./outputs", f"{args.prefix}_{args.mode}_bands_dos.png")
             fig.savefig(out_plot_name, dpi=300, bbox_inches='tight')
             print(f"Single plot ({args.mode}) generated successfully: {out_plot_name}")
 
@@ -300,12 +333,14 @@ def main(args_list=None):
     subparsers = parser.add_subparsers(dest="command", required=True, help="Simulation phase to execute")
 
     parser_setup = subparsers.add_parser('setup', help="Executes convergence tests and structural relaxation.")
-    parser_setup.add_argument('--npool', type=int, default=4, help="Number of MPI processes.")
+    parser_setup.add_argument('--num_cores', type=int, default=4, help="Number of MPI processes.")
+    parser_setup.add_argument('--npool', type=int, default=1, help="Number of k-point pools for parallelization.")
 
     parser_run = subparsers.add_parser('run', help="Executes the main computational pipeline (SCF, NSCF, BANDS).")
     parser_run.add_argument('--mode', type=str, choices=['SR', 'FR'], required=True,
                             help="Physical mode: SR (Scalar Relativistic) or FR (Fully Relativistic).")
-    parser_run.add_argument('--npool', type=int, default=4, help="Number of k-point pools for parallelization.")
+    parser_run.add_argument('--num_cores', type=int, default=4, help="Number of MPI processes.")
+    parser_run.add_argument('--npool', type=int, default=1, help="Number of k-point pools for parallelization.")
     parser_run.add_argument('--step', type=str, choices=['all', 'scf', 'dos', 'fs', 'bands'], default='all',
                             help="Execute the entire pipeline ('all') or a specific logical block.")
 
@@ -334,7 +369,7 @@ def run_pipeline(prefix):
     """
     print(f"\n{'=' * 50}\nStarting Automated Pipeline for: {prefix}\n{'=' * 50}")
 
-    main(["--prefix", prefix, "setup"])
+    # main(["--prefix", prefix, "setup"])
     main(["--prefix", prefix, "run", "--mode", "SR"])
     main(["--prefix", prefix, "plot", "--mode", "SR"])
 
