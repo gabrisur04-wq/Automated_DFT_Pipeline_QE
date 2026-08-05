@@ -39,13 +39,13 @@ For precise control over the pipeline, error recovery, or to execute specific ph
 *   **Phase 4: Plotting and Analysis**
     ```bash
     # Plot SR results
-    python main.py --prefix NiTe2 plot --mode SR
+    python ../../main.py --prefix NiTe2 plot --mode SR
 
     # Overlay SR and FR results for comparison
-    python main.py --prefix NiTe2 plot --mode compare
+    python ../../main.py --prefix NiTe2 plot --mode compare
 
     # Visualize the Fermi Surface (requires FermiSurfer)
-    python main.py --prefix NiTe2 plot --mode fs
+    python ../../main.py --prefix NiTe2 plot --mode fs
     ```
     *Note: Plotting axes limits can be adjusted using the optional flags `--emin`, `--emax`, and `--dos_max`.*
 
@@ -56,7 +56,7 @@ The scripts will dynamically create the following directories within this exampl
 * `tmp/`: Stores temporary data and charge density files during the calculation.
 * `outputs/`: Contains the final data, including the parsed band structure files and plots.
 
-Once the pipeline finishes, check the `outputs/` folder for the graphical representations of the NiTe2 bands and Density of States.
+If you wish to examine the final output without running the calculations, the `reference_outputs/` directory contains the pre-computed electronic structure of NiTe2.
 
 > **Note:** The complete execution of the pipeline may take several minutes depending on your hardware capabilities, the chosen calculation parameters, and the number of parallel processes utilized.
 

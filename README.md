@@ -28,7 +28,7 @@ To run this pipeline, the following external software must be installed on your 
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/gabrisur04-wq/Automated_DFT_Pipeline_QE.git](https://github.com/gabrisur04-wq/Automated_DFT_Pipeline_QE.git)
+   git clone https://github.com/gabrisur04-wq/Automated_DFT_Pipeline_QE.git
    cd Automated_DFT_Pipeline_QE
    ```
 
@@ -106,3 +106,4 @@ The pipeline automatically creates and manages the following working directories
 * `outputs/`: Log files (`.out`) and extracted data arrays (`.dos`, `.dat.gnu`, `.bxsf`).
 * `tmp*/`: Temporary directories containing wavefunctions and isolated `.save` folders for specific calculation branches.
 * Final generated plots (`*.png`) are saved directly in the root directory.
+* `reference_outputs/`: Directories (located inside example folders) containing pre-computed results and original demonstration plots, provided for direct benchmark comparison.
