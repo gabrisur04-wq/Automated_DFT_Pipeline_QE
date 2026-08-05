@@ -14,12 +14,8 @@ inputs/
 tmp/
 tmp_*/
 
-# Ignore generic outputs folders everywhere
+# Ignore all runtime output directories everywhere
 outputs/
-
-# EXCEPT the demonstration outputs inside the NiTe2 example
-!examples/NiTe2_example/outputs/
-!examples/NiTe2_example/outputs/**
 
 # Quantum ESPRESSO specific temporary/large files
 *.save/

@@ -67,4 +67,4 @@ If you wish to examine the final output without running the calculations, the `o
 ### Band Structure and Density of States (Comparison)
 Below is the final comparative plot showing both the Scalar-Relativistic (SR) and Fully Relativistic (FR) calculations, highlighting the effects of spin-orbit coupling on the Dirac nodes.
 
-![NiTe2 Bands and DOS Comparison](outputs/NiTe2_bands_dos_compare.png)
+![NiTe2 Bands and DOS Comparison](reference_outputs/NiTe2_bands_dos_compare.png)
