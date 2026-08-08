@@ -100,8 +100,9 @@ python main.py --prefix NiTe2 run --mode SR --step scf --num_cores 4 --npool 1
 After the calculations are finished, use the `plot` command to extract data and generate visualizations.
 
 ```bash
-# Plot SR results
+# Plot the SR and the FR results respectively
 python ../../main.py --prefix NiTe2 plot --mode SR
+python ../../main.py --prefix NiTe2 plot --mode FR
 
 # Overlay SR and FR results for comparison
 python ../../main.py --prefix NiTe2 plot --mode compare
@@ -120,7 +121,6 @@ python ../../main.py --prefix NiTe2 plot --mode fs_fr
 
 The pipeline automatically creates and manages the following working directories:
 * `inputs/`: Generated Quantum ESPRESSO `.in` files.
-* `outputs/`: Log files (`.out`) and extracted data arrays (`.dos`, `.dat.gnu`, `.bxsf`).
+* `outputs/`: Log files (`.out`), extracted data arrays (`.dos`, `.dat.gnu`, `.bxsf`) and final generated plots (`*.png`).
 * `tmp*/`: Temporary directories containing wavefunctions and isolated `.save` folders for specific calculation branches.
-* Final generated plots (`*.png`) are saved directly in the root directory.
 * `reference_outputs/`: Directories (located inside example folders) containing pre-computed results and original demonstration plots, provided for direct benchmark comparison.

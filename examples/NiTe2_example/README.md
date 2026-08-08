@@ -5,7 +5,7 @@ This directory contains a complete configuration to calculate the electronic ban
 ## Prerequisites
 
 1. **Quantum ESPRESSO**: Ensure the executables (e.g., `pw.x`, `dos.x`, `bands.x`, `fs.x`) are installed and available in your system's PATH.
-2. **Pseudopotentials**: Ensure the required `.UPF` files for Nickel and Tellurium are located in the `pseudo/` directory.
+2. **Pseudopotentials**: Ensure the required `.upf` files for Nickel and Tellurium are located in the `pseudo/` directory.
 
 ## How to Run
 
@@ -21,7 +21,7 @@ python run_example.py
 ### 2. Modular Execution via CLI
 For precise control over the pipeline, error recovery, or to execute specific physical models (such as Spin-Orbit coupling), you can invoke the main infrastructure engine directly using the `../../main.py` relative path.
 
-*Note: The commands below use `--num_cores 4` and `--npool 1`, which is the recommended parallelization configuration for multi-core desktop processors to maximize stability and memory efficiency.*
+*Note: The commands below use `--num_cores 4` and `--npool 1`, which is optimized for local desktop environments and personal workstations to prevent memory overhead and ensure stability.*
 
 *   **Phase 1: Structural Setup & Convergence**
     ```bash
@@ -40,8 +40,9 @@ For precise control over the pipeline, error recovery, or to execute specific ph
     ```
 *   **Phase 4: Plotting and Analysis**
     ```bash
-    # Plot SR results
+    # Plot the SR and the FR results respectively
     python ../../main.py --prefix NiTe2 plot --mode SR
+    python ../../main.py --prefix NiTe2 plot --mode FR
 
     # Overlay SR and FR results for comparison
     python ../../main.py --prefix NiTe2 plot --mode compare
@@ -59,7 +60,7 @@ The scripts will dynamically create the following directories within this exampl
 * `tmp/`: Stores temporary data and charge density files during the calculation.
 * `outputs/`: Contains the final data, including the parsed band structure files and plots.
 
-> **Note:** The complete execution of the pipeline may take several minutes depending on your hardware capabilities, the chosen calculation parameters, and the number of parallel processes utilized.
+> **Note:** The complete execution of the pipeline may take several hours depending on your hardware capabilities, the chosen calculation parameters, and the physical mode (Fully Relativistic runs with Spin-Orbit coupling require significantly more computational time than Scalar-Relativistic ones).
 
 ## Pre-computed Reference Results
 
