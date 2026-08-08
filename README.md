@@ -5,7 +5,23 @@ This repository provides an automated, modular pipeline for Density Functional T
 By decoupling the numerical infrastructure from the material's physical parameters via specific JSON configuration files, the pipeline ensures highly reproducible simulations in both Scalar Relativistic (SR) and Fully Relativistic (FR) regimes without requiring manual adjustments to the input scripts.
 
 ## Showcase: NiTe2 Electronic Structure
-Check out the [NiTe2 Complete Example](examples/NiTe2_example/) to see the input configurations and the pre-computed high-resolution plots.
+
+The pipeline natively supports advanced extraction and visualization of calculated electronic properties, handling both Scalar-Relativistic (SR) and Fully Relativistic (FR) regimes. Below is a showcase of the results generated using the provided `NiTe2` configuration.
+
+### Band Structure and Density of States
+The infrastructure automatically overlays SR and FR calculations to highlight Spin-Orbit Coupling (SOC) effects, such as band splitting and gap openings at the Dirac nodes.
+
+![NiTe2 Bands and DOS Comparison](examples/NiTe2_example/reference_outputs/NiTe2_bands_dos_compare.png)
+
+### 3D Fermi Surface Topology
+The pipeline formats NSCF calculations for direct interactive visualization via **FermiSurfer**. The extracted topology precisely reflects the physical differences between the selected regimes.
+
+|                                     Scalar-Relativistic (SR)                                     |                                     Fully Relativistic (FR)                                      |
+|:------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------:|
+|  ![Fermi Surface SR - Front View](examples/NiTe2_example/reference_outputs/NiTe2_SR_fs_top.png)  |  ![Fermi Surface FR - Front View](examples/NiTe2_example/reference_outputs/NiTe2_FR_fs_top.png)  |
+| ![Fermi Surface SR - Angled View](examples/NiTe2_example/reference_outputs/NiTe2_SR_fs_side.png) | ![Fermi Surface FR - Angled View](examples/NiTe2_example/reference_outputs/NiTe2_FR_fs_side.png) |
+
+*To interactively inspect the generated surfaces on your local machine, check out the [NiTe2 Complete Example](examples/NiTe2_example/) directory for specific CLI commands.*
 
 ## Configuration Architecture
 
@@ -85,13 +101,14 @@ After the calculations are finished, use the `plot` command to extract data and 
 
 ```bash
 # Plot SR results
-python main.py --prefix NiTe2 plot --mode SR
+python ../../main.py --prefix NiTe2 plot --mode SR
 
 # Overlay SR and FR results for comparison
-python main.py --prefix NiTe2 plot --mode compare
+python ../../main.py --prefix NiTe2 plot --mode compare
 
-# Visualize the Fermi Surface (requires FermiSurfer)
-python main.py --prefix NiTe2 plot --mode fs
+# Visualize the Scalar-Relativistic and the Fully-Relativistic Fermi Surface respectively (requires FermiSurfer)
+python ../../main.py --prefix NiTe2 plot --mode fs_sr
+python ../../main.py --prefix NiTe2 plot --mode fs_fr
 ```
 *Note: Plotting axes limits can be adjusted using the optional flags `--emin`, `--emax`, and `--dos_max`.*
 

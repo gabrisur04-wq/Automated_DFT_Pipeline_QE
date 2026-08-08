@@ -32,6 +32,8 @@ For precise control over the pipeline, error recovery, or to execute specific ph
     python ../../main.py --prefix NiTe2 run --mode SR --num_cores 4 --npool 1
     ```
     *Optional:* You can restrict the execution to a specific step by appending `--step bands`, `--step dos`, or `--step fs`.
+
+
 *   **Phase 3: Fully Relativistic (FR) Calculation**
     ```bash
     python ../../main.py --prefix NiTe2 run --mode FR --num_cores 4 --npool 1
@@ -44,8 +46,9 @@ For precise control over the pipeline, error recovery, or to execute specific ph
     # Overlay SR and FR results for comparison
     python ../../main.py --prefix NiTe2 plot --mode compare
 
-    # Visualize the Fermi Surface (requires FermiSurfer)
-    python ../../main.py --prefix NiTe2 plot --mode fs
+    # Visualize the Scalar-Relativistic and the Fully-Relativistic Fermi Surface respectively (requires FermiSurfer)
+    python ../../main.py --prefix NiTe2 plot --mode fs_sr
+    python ../../main.py --prefix NiTe2 plot --mode fs_fr
     ```
     *Note: Plotting axes limits can be adjusted using the optional flags `--emin`, `--emax`, and `--dos_max`.*
 
@@ -56,15 +59,21 @@ The scripts will dynamically create the following directories within this exampl
 * `tmp/`: Stores temporary data and charge density files during the calculation.
 * `outputs/`: Contains the final data, including the parsed band structure files and plots.
 
-If you wish to examine the final output without running the calculations, the `reference_outputs/` directory contains the pre-computed electronic structure of NiTe2.
-
 > **Note:** The complete execution of the pipeline may take several minutes depending on your hardware capabilities, the chosen calculation parameters, and the number of parallel processes utilized.
 
-## Pre-computed Results
+## Pre-computed Reference Results
 
-If you wish to examine the final output without running the calculations, the `outputs/` directory contains the pre-computed electronic structure of NiTe2.
+If you wish to examine the final output without running the calculations, or if you want to validate your own local run, the `reference_outputs/` directory contains the pre-computed electronic structure of NiTe2.
 
 ### Band Structure and Density of States (Comparison)
 Below is the final comparative plot showing both the Scalar-Relativistic (SR) and Fully Relativistic (FR) calculations, highlighting the effects of spin-orbit coupling on the Dirac nodes.
 
 ![NiTe2 Bands and DOS Comparison](reference_outputs/NiTe2_bands_dos_compare.png)
+
+### 3D Fermi Surface Topology
+The infrastructure also formats the output for direct visualization in **FermiSurfer**. The topology of the Fermi surface reflects the physical differences between the SR and FR regimes.
+
+|                         Scalar-Relativistic (SR)                          |                          Fully Relativistic (FR)                          |
+|:-------------------------------------------------------------------------:|:-------------------------------------------------------------------------:|
+|  ![Fermi Surface SR - Front View](reference_outputs/NiTe2_SR_fs_top.png)  |  ![Fermi Surface FR - Front View](reference_outputs/NiTe2_FR_fs_top.png)  |
+| ![Fermi Surface SR - Angled View](reference_outputs/NiTe2_SR_fs_side.png) | ![Fermi Surface FR - Angled View](reference_outputs/NiTe2_FR_fs_side.png) |

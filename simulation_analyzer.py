@@ -66,7 +66,7 @@ class SimulationAnalyzer:
         plt.legend()
 
         # Save the plot
-        plot_path = f"{self.prefix}_convergence_ecut.png"
+        plot_path = f"outputs/{self.prefix}_convergence_ecut.png"
         plt.savefig(plot_path, dpi=300)
         print(f"[Analyzer] Ecut convergence plot saved to {plot_path}")
 
@@ -114,7 +114,7 @@ class SimulationAnalyzer:
         plt.legend()
 
         # Save the plot
-        plot_path = f"{self.prefix}_convergence_kpoints.png"
+        plot_path = f"outputs/{self.prefix}_convergence_kpoints.png"
         plt.savefig(plot_path, dpi=300)
         print(f"[Analyzer] K-points convergence plot saved to {plot_path}")
 

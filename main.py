@@ -300,9 +300,21 @@ def handle_plot(args):
             )
             print(f"Comparative plot generated successfully: {out_plot_name}")
 
-        elif args.mode == 'fs':
+        elif args.mode == 'fs_sr':
+
             analyzer = get_analyzer(args.prefix, 'SR', k_labels)
-            print("Opening FermiSurfer to visualize the Fermi Surface...")
+
+            print("Opening FermiSurfer to visualize the Scalar-Relativistic Fermi Surface...")
+
+            analyzer.show_fermi_surface()
+
+
+        elif args.mode == 'fs_fr':
+
+            analyzer = get_analyzer(args.prefix, 'FR', k_labels)
+
+            print("Opening FermiSurfer to visualize the Fully Relativistic Fermi Surface...")
+
             analyzer.show_fermi_surface()
 
         else:
@@ -345,8 +357,8 @@ def main(args_list=None):
                             help="Execute the entire pipeline ('all') or a specific logical block.")
 
     parser_plot = subparsers.add_parser('plot', help="Generates plots and visualizations from output data.")
-    parser_plot.add_argument('--mode', type=str, choices=['SR', 'FR', 'compare', 'fs'], required=True,
-                             help="Plotting mode: SR, FR, compare (overlay), or fs (FermiSurfer).")
+    parser_plot.add_argument('--mode', type=str, choices=['SR', 'FR', 'compare', 'fs_sr', 'fs_fr'], required=True,
+                             help="Plotting mode: SR, FR, compare (overlay), fs_sr (FermiSurfer SR), or fs_fr (FermiSurfer FR).")
     parser_plot.add_argument('--dos_max', type=float, default=None, help="Custom upper limit for the DOS X-axis.")
     parser_plot.add_argument('--emin', type=float, default=-2.0,
                              help="Minimum energy (eV) relative to the Fermi Level.")
@@ -369,7 +381,7 @@ def run_pipeline(prefix):
     """
     print(f"\n{'=' * 50}\nStarting Automated Pipeline for: {prefix}\n{'=' * 50}")
 
-    # main(["--prefix", prefix, "setup"])
+    main(["--prefix", prefix, "setup"])
     main(["--prefix", prefix, "run", "--mode", "SR"])
     main(["--prefix", prefix, "plot", "--mode", "SR"])
 

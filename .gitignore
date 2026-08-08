@@ -9,13 +9,18 @@ venv/
 .idea/
 .DS_Store
 
-# Pipeline runtime directories (ignored at any depth)
+# Pipeline runtime directories and generated state files (ignored at any depth)
 inputs/
 tmp/
 tmp_*/
+*_state.json
 
 # Ignore all runtime output directories everywhere
 outputs/
+
+# Ignore generated plot files everywhere, except reference plots
+*.png
+!**/reference_outputs/*.png
 
 # Quantum ESPRESSO specific temporary/large files
 *.save/

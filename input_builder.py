@@ -204,11 +204,17 @@ class InputBuilder:
 
         return generated_files
 
-    def build_nscf_input(self, k_points, nosym=False, outdir=None, suffix="nscf"):
+    def build_nscf_input(self, k_points, nosym=False, outdir=None, disk_io='none', suffix="nscf"):
         ctrl, sys, elec = self._apply_overrides('nscf')
 
         ctrl['prefix'] = self.prefix
         ctrl['outdir'] = outdir if outdir else self.control_params.get('outdir', './tmp/')
+
+        # If disk_io is not specified either by argument or in the JSON file, use 'none' as a safe default
+        if 'disk_io' not in ctrl and disk_io is None:
+            ctrl['disk_io'] = 'none'
+        elif disk_io is not None:
+            ctrl['disk_io'] = disk_io
 
         # Programmatically remove smearing and degauss to prevent conflicts with 'tetrahedra' occupations
         sys.pop('smearing', None)
